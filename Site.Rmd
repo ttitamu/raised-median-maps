@@ -12,11 +12,11 @@ output:
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(leaflet, viridis, DT, flexdashboard)
 devtools::install_github('rstudio/leaflet')
-wd <- "C:\\Users\\Michelle\\Documents\\Projects\\Raised Median Maps\\"
+wd <- "C:\\Users\\m-plunkett\\Documents\\Projects\\Raised Median Maps\\"
 setwd(wd)
 
-# Load Places Objects from previous script run
-sites <- 1:12
+# Load Places Objects from previous script run (1:13 is number of sites total)
+sites <- 1:13
 for (i in 1:length(sites)) {
   load(file=paste0("Site_",i,".Rdata"))
 }
@@ -33,6 +33,7 @@ Site_9$Website <- paste0("<a href='",Site_9$Website,"' target='_blank'>",Site_9$
 Site_10$Website <- paste0("<a href='",Site_10$Website,"' target='_blank'>",Site_10$Website,"</a>")
 Site_11$Website <- paste0("<a href='",Site_11$Website,"' target='_blank'>",Site_11$Website,"</a>")
 Site_12$Website <- paste0("<a href='",Site_12$Website,"' target='_blank'>",Site_12$Website,"</a>")
+Site_13$Website <- paste0("<a href='",Site_13$Website,"' target='_blank'>",Site_13$Website,"</a>")
 
 typepal1 <- colorFactor(rainbow(length(unique(Site_1$Main_Type))), Site_1$Main_Type)
 typepal2 <- colorFactor(rainbow(length(unique(Site_2$Main_Type))), Site_2$Main_Type)
@@ -46,6 +47,7 @@ typepal9 <- colorFactor(rainbow(length(unique(Site_9$Main_Type))), Site_9$Main_T
 typepal10 <- colorFactor(rainbow(length(unique(Site_10$Main_Type))), Site_10$Main_Type)
 typepal11 <- colorFactor(rainbow(length(unique(Site_11$Main_Type))), Site_11$Main_Type)
 typepal12 <- colorFactor(rainbow(length(unique(Site_12$Main_Type))), Site_12$Main_Type)
+typepal13 <- colorFactor(rainbow(length(unique(Site_13$Main_Type))), Site_13$Main_Type)
 
 knitr::opts_chunk$set(echo = TRUE, fig.align="center")
 ```
@@ -68,11 +70,12 @@ Links to Maps:
 - [Site 5 - US-79/Palm Valley Blvd]
 - [Site 6 - FM 620]
 - [Site 7 - TX-29/University Ave]
-- [Site 8 - FM 1460/A.W. Grimes Blvd]
-- [Site 9 - FM 1431/Whitestone]
-- [Site 10 - FM 1431/Whitestone]
-- [Site 11 - FM 685]
+- [Site 8 - FM 1460/AW Grimes Blvd]
+- [Site 9 - FM 1431/Whitestone Blvd]
+- [Site 10 - FM 1431/Whitestone Blvd]
+- [Site 11 - FM 1431/Whitestone Blvd]
 - [Site 12 - FM 685]
+- [Site 13 - FM 685]
 
 
 Site 1 - Koenig Ln {data-navmenu="Maps"}
@@ -320,7 +323,7 @@ leaflet(data = Site_7, width = "100%") %>%
 datatable(Site_7[,c(1,8,10:11,6)], rownames = F, escape = FALSE)
 ```
 
-Site 8 - FM 1460/A.W. Grimes Blvd {data-navmenu="Maps"}
+Site 8 - FM 1460/AW Grimes Blvd {data-navmenu="Maps"}
 =====================================
 
 ### Instructions
@@ -355,7 +358,7 @@ leaflet(data = Site_8, width = "100%") %>%
 datatable(Site_8[,c(1,8,10:11,6)], rownames = F, escape = FALSE)
 ```
 
-Site 9 - FM 1431/Whitestone {data-navmenu="Maps"}
+Site 9 - FM 1431/Whitestone Blvd {data-navmenu="Maps"}
 =====================================
 
 ### Instructions
@@ -390,7 +393,7 @@ leaflet(data = Site_9, width = "100%") %>%
 datatable(Site_9[,c(1,8,10:11,6)], rownames = F, escape = FALSE)
 ```
 
-Site 10 - FM 1431/Whitestone {data-navmenu="Maps"}
+Site 10 - FM 1431/Whitestone Blvd {data-navmenu="Maps"}
 =====================================
 
 ### Instructions
@@ -425,7 +428,7 @@ leaflet(data = Site_10, width = "100%") %>%
 datatable(Site_10[,c(1,8,10:11,6)], rownames = F, escape = FALSE)
 ```
 
-Site 11 - FM 685 {data-navmenu="Maps"}
+Site 11 - FM 1431/Whitestone Blvd {data-navmenu="Maps"}
 =====================================
 
 ### Instructions
@@ -460,6 +463,7 @@ leaflet(data = Site_11, width = "100%") %>%
 datatable(Site_11[,c(1,8,10:11,6)], rownames = F, escape = FALSE)
 ```
 
+
 Site 12 - FM 685 {data-navmenu="Maps"}
 =====================================
 
@@ -493,4 +497,39 @@ leaflet(data = Site_12, width = "100%") %>%
 
 ```{r cols.print=7, rows.print=54, echo=FALSE}
 datatable(Site_12[,c(1,8,10:11,6)], rownames = F, escape = FALSE)
+```
+
+Site 13 - FM 685 {data-navmenu="Maps"}
+=====================================
+
+### Instructions
+
+Hover over a point to see the the name of the business. Click on a point to reveal a pop-up with its address and a link to the business's Google Maps webpage.
+
+
+### Map {.no-title }
+
+```{r, echo=FALSE,fig.height=8,fig.align="center"}
+leaflet(data = Site_13, width = "100%") %>%
+  addTiles(urlTemplate = "https://mts1.google.com/vt/lyrs=s&hl=en&src=app&x={x}&y={y}&z={z}&s=G", group = "Google", attribution = 'Google') %>%
+  addTiles(urlTemplate = "http://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}&s=Ga", group = "Hybrid", attribution = "Google") %>%
+  addProviderTiles("Esri.WorldImagery", group = "ESRI") %>%
+  addCircleMarkers(~Longitude, ~Latitude, 
+                   radius=9, 
+                   fillColor = ~typepal13(Main_Type), 
+                   stroke=T, color = "#FFFFFF", opacity = 0.8, fillOpacity = 0.9, 
+                   popup = ~paste(paste0("<b><a href='",
+                                  Site_13$Google_Maps_URL,"' target='_blank'>",Site_13$Name,"</a></b>"),
+                                  Site_13$Full_Address,
+                                  paste0("<b>Place Type:</b> ",Site_13$Main_Type),sep="<br/>"), 
+                   label = ~as.character(Site_13$Name)) %>%
+  addLegend("bottomright", pal = typepal13, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
+  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft"))
+```
+
+
+### Business Details
+
+```{r cols.print=7, rows.print=54, echo=FALSE}
+datatable(Site_13[,c(1,8,10:11,6)], rownames = F, escape = FALSE)
 ```
