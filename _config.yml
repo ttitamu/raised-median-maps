@@ -1,0 +1,8 @@
+title: Raised Median Maps
+description: This is a respository to hold the maps made for the Raised Medians project.
+google_analytics: 
+show_downloads: true
+theme: jekyll-theme-minimal
+
+gems:
+  - jekyll-mentions
