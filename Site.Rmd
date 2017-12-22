@@ -12,42 +12,23 @@ output:
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(leaflet, viridis, DT, flexdashboard)
 devtools::install_github('rstudio/leaflet')
+devtools::install_github('bhaskarvk/leaflet.extras')
+library(leaflet.extras)
 wd <- "C:\\Users\\m-plunkett\\Documents\\Projects\\Raised Median Maps\\"
 setwd(wd)
 
 # Load Places Objects from previous script run (1:13 is number of sites total)
 sites <- 1:13
 for (i in 1:length(sites)) {
-  load(file=paste0("Site_",i,".Rdata"))
+  load(file=paste0(wd,"Site_",i,".Rdata"))
+  tmp <- get(paste0("Site_",i))
+  tmp$Website <- paste0("<a href='",tmp$Website,"' target='_blank'>",tmp$Website,"</a>")
+  paltemp <- colorFactor(rainbow(length(unique(tmp$Main_Type))), tmp$Main_Type)
+  nam <- paste0("Site_",i)
+  nam2 <- paste0("typepal",i)
+  assign(nam, tmp)
+  assign(nam2, paltemp)
 }
-
-Site_1$Website <- paste0("<a href='",Site_1$Website,"' target='_blank'>",Site_1$Website,"</a>")
-Site_2$Website <- paste0("<a href='",Site_2$Website,"' target='_blank'>",Site_2$Website,"</a>")
-Site_3$Website <- paste0("<a href='",Site_3$Website,"' target='_blank'>",Site_3$Website,"</a>")
-Site_4$Website <- paste0("<a href='",Site_4$Website,"' target='_blank'>",Site_4$Website,"</a>")
-Site_5$Website <- paste0("<a href='",Site_5$Website,"' target='_blank'>",Site_5$Website,"</a>")
-Site_6$Website <- paste0("<a href='",Site_6$Website,"' target='_blank'>",Site_6$Website,"</a>")
-Site_7$Website <- paste0("<a href='",Site_7$Website,"' target='_blank'>",Site_7$Website,"</a>")
-Site_8$Website <- paste0("<a href='",Site_8$Website,"' target='_blank'>",Site_8$Website,"</a>")
-Site_9$Website <- paste0("<a href='",Site_9$Website,"' target='_blank'>",Site_9$Website,"</a>")
-Site_10$Website <- paste0("<a href='",Site_10$Website,"' target='_blank'>",Site_10$Website,"</a>")
-Site_11$Website <- paste0("<a href='",Site_11$Website,"' target='_blank'>",Site_11$Website,"</a>")
-Site_12$Website <- paste0("<a href='",Site_12$Website,"' target='_blank'>",Site_12$Website,"</a>")
-Site_13$Website <- paste0("<a href='",Site_13$Website,"' target='_blank'>",Site_13$Website,"</a>")
-
-typepal1 <- colorFactor(rainbow(length(unique(Site_1$Main_Type))), Site_1$Main_Type)
-typepal2 <- colorFactor(rainbow(length(unique(Site_2$Main_Type))), Site_2$Main_Type)
-typepal3 <- colorFactor(rainbow(length(unique(Site_3$Main_Type))), Site_3$Main_Type)
-typepal4 <- colorFactor(rainbow(length(unique(Site_4$Main_Type))), Site_4$Main_Type)
-typepal5 <- colorFactor(rainbow(length(unique(Site_5$Main_Type))), Site_5$Main_Type)
-typepal6 <- colorFactor(rainbow(length(unique(Site_6$Main_Type))), Site_6$Main_Type)
-typepal7 <- colorFactor(rainbow(length(unique(Site_7$Main_Type))), Site_7$Main_Type)
-typepal8 <- colorFactor(rainbow(length(unique(Site_8$Main_Type))), Site_8$Main_Type)
-typepal9 <- colorFactor(rainbow(length(unique(Site_9$Main_Type))), Site_9$Main_Type)
-typepal10 <- colorFactor(rainbow(length(unique(Site_10$Main_Type))), Site_10$Main_Type)
-typepal11 <- colorFactor(rainbow(length(unique(Site_11$Main_Type))), Site_11$Main_Type)
-typepal12 <- colorFactor(rainbow(length(unique(Site_12$Main_Type))), Site_12$Main_Type)
-typepal13 <- colorFactor(rainbow(length(unique(Site_13$Main_Type))), Site_13$Main_Type)
 
 knitr::opts_chunk$set(echo = TRUE, fig.align="center")
 ```
@@ -101,9 +82,13 @@ leaflet(data = Site_1, width = "100%") %>%
                                   Site_1$Google_Maps_URL,"' target='_blank'>",Site_1$Name,"</a></b>"),
                                   Site_1$Full_Address,
                                   paste0("<b>Place Type:</b> ",Site_1$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_1$Name)) %>%
+                   label = ~as.character(Site_1$Name),
+                   group = "Markers") %>%
   addLegend("bottomright", pal = typepal1, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft"))
+  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft")) %>%
+  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
+  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
+  addFullscreenControl()
 ```
 
 
@@ -136,9 +121,13 @@ leaflet(data = Site_2, width = "100%") %>%
                                   Site_2$Google_Maps_URL,"' target='_blank'>",Site_2$Name,"</a></b>"),
                                   Site_2$Full_Address,
                                   paste0("<b>Place Type:</b> ",Site_2$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_2$Name)) %>%
+                   label = ~as.character(Site_2$Name),
+                   group = "Markers") %>%
   addLegend("bottomright", pal = typepal2, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft"))
+  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft")) %>%
+  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
+  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
+  addFullscreenControl()
 ```
 
 
@@ -171,9 +160,13 @@ leaflet(data = Site_3, width = "100%") %>%
                                   Site_3$Google_Maps_URL,"' target='_blank'>",Site_3$Name,"</a></b>"),
                                   Site_3$Full_Address,
                                   paste0("<b>Place Type:</b> ",Site_3$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_3$Name)) %>%
+                   label = ~as.character(Site_3$Name),
+                   group = "Markers") %>%
   addLegend("bottomright", pal = typepal3, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft"))
+  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft")) %>%
+  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
+  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
+  addFullscreenControl()
 ```
 
 
@@ -206,9 +199,13 @@ leaflet(data = Site_4, width = "100%") %>%
                                   Site_4$Google_Maps_URL,"' target='_blank'>",Site_4$Name,"</a></b>"),
                                   Site_4$Full_Address,
                                   paste0("<b>Place Type:</b> ",Site_4$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_4$Name)) %>%
+                   label = ~as.character(Site_4$Name),
+                   group = "Markers") %>%
   addLegend("bottomright", pal = typepal4, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft"))
+  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft")) %>%
+  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
+  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
+  addFullscreenControl()
 ```
 
 
@@ -241,9 +238,13 @@ leaflet(data = Site_5, width = "100%") %>%
                                   Site_5$Google_Maps_URL,"' target='_blank'>",Site_5$Name,"</a></b>"),
                                   Site_5$Full_Address,
                                   paste0("<b>Place Type:</b> ",Site_5$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_5$Name)) %>%
+                   label = ~as.character(Site_5$Name),
+                   group = "Markers") %>%
   addLegend("bottomright", pal = typepal5, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft"))
+  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft")) %>%
+  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
+  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
+  addFullscreenControl()
 ```
 
 
@@ -276,9 +277,13 @@ leaflet(data = Site_6, width = "100%") %>%
                                   Site_6$Google_Maps_URL,"' target='_blank'>",Site_6$Name,"</a></b>"),
                                   Site_6$Full_Address,
                                   paste0("<b>Place Type:</b> ",Site_6$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_6$Name)) %>%
+                   label = ~as.character(Site_6$Name),
+                   group = "Markers") %>%
   addLegend("bottomright", pal = typepal6, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft"))
+  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft")) %>%
+  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
+  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
+  addFullscreenControl()
 ```
 
 
@@ -311,9 +316,13 @@ leaflet(data = Site_7, width = "100%") %>%
                                   Site_7$Google_Maps_URL,"' target='_blank'>",Site_7$Name,"</a></b>"),
                                   Site_7$Full_Address,
                                   paste0("<b>Place Type:</b> ",Site_7$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_7$Name)) %>%
+                   label = ~as.character(Site_7$Name),
+                   group = "Markers") %>%
   addLegend("bottomright", pal = typepal7, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft"))
+  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft")) %>%
+  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
+  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
+  addFullscreenControl()
 ```
 
 
@@ -346,9 +355,13 @@ leaflet(data = Site_8, width = "100%") %>%
                                   Site_8$Google_Maps_URL,"' target='_blank'>",Site_8$Name,"</a></b>"),
                                   Site_8$Full_Address,
                                   paste0("<b>Place Type:</b> ",Site_8$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_8$Name)) %>%
+                   label = ~as.character(Site_8$Name),
+                   group = "Markers") %>%
   addLegend("bottomright", pal = typepal8, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft"))
+  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft"))%>%
+  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
+  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
+  addFullscreenControl()
 ```
 
 
@@ -381,9 +394,13 @@ leaflet(data = Site_9, width = "100%") %>%
                                   Site_9$Google_Maps_URL,"' target='_blank'>",Site_9$Name,"</a></b>"),
                                   Site_9$Full_Address,
                                   paste0("<b>Place Type:</b> ",Site_9$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_9$Name)) %>%
+                   label = ~as.character(Site_9$Name),
+                   group = "Markers") %>%
   addLegend("bottomright", pal = typepal9, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft"))
+  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft")) %>%
+  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
+  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
+  addFullscreenControl()
 ```
 
 
@@ -416,9 +433,13 @@ leaflet(data = Site_10, width = "100%") %>%
                                   Site_10$Google_Maps_URL,"' target='_blank'>",Site_10$Name,"</a></b>"),
                                   Site_10$Full_Address,
                                   paste0("<b>Place Type:</b> ",Site_10$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_10$Name)) %>%
+                   label = ~as.character(Site_10$Name),
+                   group = "Markers") %>%
   addLegend("bottomright", pal = typepal10, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft"))
+  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft")) %>%
+  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
+  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
+  addFullscreenControl()
 ```
 
 
@@ -451,9 +472,13 @@ leaflet(data = Site_11, width = "100%") %>%
                                   Site_11$Google_Maps_URL,"' target='_blank'>",Site_11$Name,"</a></b>"),
                                   Site_11$Full_Address,
                                   paste0("<b>Place Type:</b> ",Site_11$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_11$Name)) %>%
+                   label = ~as.character(Site_11$Name),
+                   group = "Markers") %>%
   addLegend("bottomright", pal = typepal11, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft"))
+  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft")) %>%
+  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
+  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
+  addFullscreenControl()
 ```
 
 
@@ -487,9 +512,13 @@ leaflet(data = Site_12, width = "100%") %>%
                                   Site_12$Google_Maps_URL,"' target='_blank'>",Site_12$Name,"</a></b>"),
                                   Site_12$Full_Address,
                                   paste0("<b>Place Type:</b> ",Site_12$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_12$Name)) %>%
+                   label = ~as.character(Site_12$Name),
+                   group = "Markers") %>%
   addLegend("bottomright", pal = typepal12, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft"))
+  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft")) %>%
+  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
+  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
+  addFullscreenControl()
 ```
 
 
@@ -522,9 +551,13 @@ leaflet(data = Site_13, width = "100%") %>%
                                   Site_13$Google_Maps_URL,"' target='_blank'>",Site_13$Name,"</a></b>"),
                                   Site_13$Full_Address,
                                   paste0("<b>Place Type:</b> ",Site_13$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_13$Name)) %>%
+                   label = ~as.character(Site_13$Name),
+                   group = "Markers") %>%
   addLegend("bottomright", pal = typepal13, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft"))
+  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft")) %>%
+  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
+  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
+  addFullscreenControl()
 ```
 
 
