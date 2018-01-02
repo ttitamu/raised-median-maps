@@ -127,7 +127,7 @@ Home
 ### About this Site
 
 
-This is a website to hold the maps created from Google Places API retrievals. You can look at each map by clicking on the site name in the Maps navigation menu above or by selecting a site from the list below. 
+This is a website to hold the maps created from Google Places API retrievals. You can look at each map by clicking on the site name in the <b>Maps</b> navigation menu above or by selecting a site from the list below. 
 
 - [Site 1 - Koenig Ln]
 - [Site 2 - FM 973]
@@ -144,6 +144,8 @@ This is a website to hold the maps created from Google Places API retrievals. Yo
 - [Site 13 - FM 685]
 
 Further information about the data collection methodology can be viewed in the <a href="https://github.com/ttitamu/raised-median-maps/blob/master/GooglePlaces-2017-12-22.R" target="_blank">R script here</a>.
+
+Business data is current as of December 15, 2017. 
 
 
 ```{r, echo = FALSE, eval = TRUE}
