@@ -9,8 +9,14 @@ output:
 ---
 
 ```{r setup, include=FALSE}
+
+# This website was created by Michelle Plunkett in December 2017. 
+# Michelle is a Graduate Student Worker at the Texas A&M Transportation Institute.
+# She is a Master of Public Affairs candidate (Class of 2018) at UT Austin's LBJ School of Public Affairs.
+# Contact Information: mplunkett@utexas.edu
+
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(viridis, flexdashboard)
+pacman::p_load(viridis, flexdashboard, knitr)
 pacman::p_load_gh('rstudio/leaflet','bhaskarvk/leaflet.extras','rstudio/DT')
 wd <- "C:\\Users\\Michelle\\Documents\\Projects\\Raised Median Maps\\"
 setwd(wd)
@@ -28,6 +34,88 @@ for (i in 1:length(sites)) {
   assign(nam2, paltemp)
 }
 
+# Labels
+labels <- c("Site 1 - Koenig Ln", 
+            "Site 2 - FM 973", 
+            "Site 3 - Aquarena Springs Dr", 
+            "Site 4 - TX-80", 
+            "Site 5 - US-79/Palm Valley Blvd", 
+            "Site 6 - FM 620",
+            "Site 7 - TX-29/University Ave",
+            "Site 8 - FM 1460/AW Grimes Blvd",
+            "Site 9 - FM 1431/Whitestone Blvd",
+            "Site 10 - FM 1431/Whitestone Blvd",
+            "Site 11 - FM 1431/Whitestone Blvd",
+            "Site 12 - FM 685",
+            "Site 13 - FM 685")
+
+# Create html widgets for each site
+for (i in 1:length(sites)) {
+  # Create all leaflet maps
+  tmp <- get(paste0("Site_",i))
+  temppal <- get(paste0("typepal",i))
+  tempmap <- leaflet(data = tmp, width = "100%") %>%
+              addTiles(urlTemplate = "https://mts1.google.com/vt/lyrs=s&hl=en&src=app&x={x}&y={y}&z={z}&s=G", 
+                       group = "Google", attribution = 'Google') %>%
+              addTiles(urlTemplate = "http://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}&s=Ga", 
+                       group = "Hybrid", attribution = "Google") %>%
+              addProviderTiles("Esri.WorldImagery", group = "ESRI") %>%
+              addCircleMarkers(~Longitude, ~Latitude, 
+                   radius=9, 
+                   fillColor = ~temppal(Main_Type), 
+                   stroke=T, color = "#FFFFFF", opacity = 0.8, fillOpacity = 0.9, 
+                   popup = ~paste(paste0("<b><a href='",
+                                  tmp$Google_Maps_URL,"' target='_blank'>",
+                                  tmp$Name,"</a></b>"),
+                                  tmp$Full_Address,
+                                  paste0("<b>Place Type:</b> ",
+                                         tmp$Main_Type),sep="<br/>"), 
+                   label = ~as.character(tmp$Name),
+                   group = "Markers") %>%
+              addLegend("bottomright", 
+                        pal = temppal, 
+                        values = ~Main_Type, 
+                        labels = "Business Type ", 
+                        title = "Business Types", 
+                        group = "Legend") %>%
+              addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), 
+                               overlayGroups = c("Legend"), 
+                               options = layersControlOptions(collapsed = FALSE), 
+                               position = c("topleft")) %>%
+              addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
+              addSearchFeatures(targetGroups = "Markers", 
+                                options = searchFeaturesOptions(zoom=19, 
+                                                                autoCollapse = TRUE, 
+                                                                hideMarkerOnCollapse = TRUE)) %>%
+              addFullscreenControl()
+  nam <- paste0("Site_",i,"_Map")
+  assign(nam, tempmap)
+  
+  # Create all datatables
+  temptable <- datatable(tmp[,c(1,8,10:11,6)], 
+          rownames = F, 
+          escape = FALSE,
+          extensions = c("Buttons"), 
+          options = list(
+            searchHighlight = TRUE,
+            dom = "Bfrtip",
+            buttons = list("colvis",
+              list(extend = "collection",
+              buttons = list(
+                          list(extend = "csv", 
+                               title = paste0(gsub("/", "-", labels[i]))),
+                          list(extend = "excel", 
+                               title = paste0(gsub("/", "-", labels[i]))),
+                          list(extend = "pdf", 
+                               title = paste0(gsub("/", "-", labels[i])),
+                               orientation = "landscape")),
+              text = "Download"
+            ))
+          ))
+  nam2 <- paste0("Site_",i,"_Table")
+  assign(nam2, temptable)
+}
+
 knitr::opts_chunk$set(echo = TRUE, fig.align="center")
 ```
 
@@ -37,10 +125,7 @@ Home
 ### About this Site
 
 
-This is a website to hold the maps created from the Google Places API retrieval. You can look at each map by clicking on the site name in the Maps navigation menu above. 
-
-
-Links to Maps:
+This is a website to hold the maps created from Google Places API retrievals. You can look at each map by clicking on the site name in the Maps navigation menu above or by selecting a site from the list below. 
 
 - [Site 1 - Koenig Ln]
 - [Site 2 - FM 973]
@@ -57,692 +142,26 @@ Links to Maps:
 - [Site 13 - FM 685]
 
 
-Site 1 - Koenig Ln {data-navmenu="Maps"}
-=====================================
+```{r, echo = FALSE, eval = TRUE}
+# Output the pages for each site (with map on top, datatable on bottom)
+out = NULL
+for (i in 1:length(sites)) {
+                           
+    a1 <- paste0("\n\n",labels[[i]]," {data-navmenu='Maps'} \n")
+    a2 <- paste0("===================================== \n\n")
+    a3 <- "### Instructions \n"
+    a4 <- "Hover over a point to see the name of the business. Click a point to see its address and a link to the business's Google Maps page. \n\n"
+    a5 <- "### Map {.no-title } \n"
+    a6 <- "\n\n```{r, echo=FALSE,fig.height=7,fig.align='center'}\n" # start r chunk
+    a7 <-  sprintf("\n Site_%d_Map", i)
+    a8 <- "\n\n```\n\n" # end r chunk
+    a9 <- "### Business Details \n"
+    a10 <- "\n\n```{r cols.print=7, echo=FALSE}\n" # start r chunk
+    a11 <- sprintf("\n Site_%d_Table", i)
+    a12 <- "\n\n```\n\n" # end r chunk
 
-### Instructions
-
-Hover over a point to see the the name of the business. Click on a point to reveal a pop-up with its address and a link to the business's Google Maps webpage.
-
-
-### Map {.no-title }
-
-```{r, echo=FALSE,fig.height=8,fig.align="center"}
-leaflet(data = Site_1, width = "100%") %>%
-  addTiles(urlTemplate = "https://mts1.google.com/vt/lyrs=s&hl=en&src=app&x={x}&y={y}&z={z}&s=G", group = "Google", attribution = 'Google') %>%
-  addTiles(urlTemplate = "http://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}&s=Ga", group = "Hybrid", attribution = "Google") %>%
-  addProviderTiles("Esri.WorldImagery", group = "ESRI") %>%
-  addCircleMarkers(~Longitude, ~Latitude, 
-                   radius=9, 
-                   fillColor = ~typepal1(Main_Type), 
-                   stroke=T, color = "#FFFFFF", opacity = 0.8, fillOpacity = 0.9, 
-                   popup = ~paste(paste0("<b><a href='",
-                                  Site_1$Google_Maps_URL,"' target='_blank'>",Site_1$Name,"</a></b>"),
-                                  Site_1$Full_Address,
-                                  paste0("<b>Place Type:</b> ",Site_1$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_1$Name),
-                   group = "Markers") %>%
-  addLegend("bottomright", pal = typepal1, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft")) %>%
-  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
-  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
-  addFullscreenControl()
+  out <- c(out, knit_expand(text=paste0(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12)))
+}
 ```
 
-
-### Business Details
-
-```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_1[,c(1,8,10:11,6)], 
-          rownames = F, 
-          escape = FALSE,
-          extensions = c("Buttons", "FixedHeader"), 
-          options = list(
-            searchHighlight = TRUE,
-            filter = "top",
-            dom = "Bfrtip",
-            buttons = list("colvis", "copy", "print", list(
-              extend = "collection",
-              buttons = c("csv", "excel"),
-              text = "Download"
-            )),
-            fixedHeader = TRUE
-          ))
-```
-
-Site 2 - FM 973 {data-navmenu="Maps"}
-=====================================
-
-### Instructions
-
-Hover over a point to see the the name of the business. Click on a point to reveal a pop-up with its address and a link to the business's Google Maps webpage.
-
-
-### Map {.no-title }
-
-```{r, echo=FALSE,fig.height=8,fig.align="center"}
-leaflet(data = Site_2, width = "100%") %>%
-  addTiles(urlTemplate = "https://mts1.google.com/vt/lyrs=s&hl=en&src=app&x={x}&y={y}&z={z}&s=G", group = "Google", attribution = 'Google') %>%
-  addTiles(urlTemplate = "http://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}&s=Ga", group = "Hybrid", attribution = "Google") %>%
-  addProviderTiles("Esri.WorldImagery", group = "ESRI") %>%
-  addCircleMarkers(~Longitude, ~Latitude, 
-                   radius=9, 
-                   fillColor = ~typepal2(Main_Type), 
-                   stroke=T, color = "#FFFFFF", opacity = 0.8, fillOpacity = 0.9, 
-                   popup = ~paste(paste0("<b><a href='",
-                                  Site_2$Google_Maps_URL,"' target='_blank'>",Site_2$Name,"</a></b>"),
-                                  Site_2$Full_Address,
-                                  paste0("<b>Place Type:</b> ",Site_2$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_2$Name),
-                   group = "Markers") %>%
-  addLegend("bottomright", pal = typepal2, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft")) %>%
-  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
-  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
-  addFullscreenControl()
-```
-
-
-### Business Details
-
-```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_2[,c(1,8,10:11,6)], 
-          rownames = F, 
-          escape = FALSE,
-          extensions = c("Buttons", "FixedHeader"), 
-          options = list(
-            searchHighlight = TRUE,
-            filter = "top",
-            dom = "Bfrtip",
-            buttons = list("colvis", "copy", "print", list(
-              extend = "collection",
-              buttons = c("csv", "excel"),
-              text = "Download"
-            )),
-            fixedHeader = TRUE
-          ))
-```
-
-Site 3 - Aquarena Springs Dr {data-navmenu="Maps"}
-=====================================
-
-### Instructions
-
-Hover over a point to see the the name of the business. Click on a point to reveal a pop-up with its address and a link to the business's Google Maps webpage.
-
-
-### Map {.no-title }
-
-```{r, echo=FALSE,fig.height=8,fig.align="center"}
-leaflet(data = Site_3, width = "100%") %>%
-  addTiles(urlTemplate = "https://mts1.google.com/vt/lyrs=s&hl=en&src=app&x={x}&y={y}&z={z}&s=G", group = "Google", attribution = 'Google') %>%
-  addTiles(urlTemplate = "http://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}&s=Ga", group = "Hybrid", attribution = "Google") %>%
-  addProviderTiles("Esri.WorldImagery", group = "ESRI") %>%
-  addCircleMarkers(~Longitude, ~Latitude, 
-                   radius=9, 
-                   fillColor = ~typepal3(Main_Type), 
-                   stroke=T, color = "#FFFFFF", opacity = 0.8, fillOpacity = 0.9, 
-                   popup = ~paste(paste0("<b><a href='",
-                                  Site_3$Google_Maps_URL,"' target='_blank'>",Site_3$Name,"</a></b>"),
-                                  Site_3$Full_Address,
-                                  paste0("<b>Place Type:</b> ",Site_3$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_3$Name),
-                   group = "Markers") %>%
-  addLegend("bottomright", pal = typepal3, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft")) %>%
-  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
-  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
-  addFullscreenControl()
-```
-
-
-### Business Details
-
-```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_3[,c(1,8,10:11,6)], 
-          rownames = F, 
-          escape = FALSE,
-          extensions = c("Buttons", "FixedHeader"), 
-          options = list(
-            searchHighlight = TRUE,
-            filter = "top",
-            dom = "Bfrtip",
-            buttons = list("colvis", "copy", "print", list(
-              extend = "collection",
-              buttons = c("csv", "excel"),
-              text = "Download"
-            )),
-            fixedHeader = TRUE
-          ))
-```
-
-Site 4 - TX-80 {data-navmenu="Maps"}
-=====================================
-
-### Instructions
-
-Hover over a point to see the the name of the business. Click on a point to reveal a pop-up with its address and a link to the business's Google Maps webpage.
-
-
-### Map {.no-title }
-
-```{r, echo=FALSE,fig.height=8,fig.align="center"}
-leaflet(data = Site_4, width = "100%") %>%
-  addTiles(urlTemplate = "https://mts1.google.com/vt/lyrs=s&hl=en&src=app&x={x}&y={y}&z={z}&s=G", group = "Google", attribution = 'Google') %>%
-  addTiles(urlTemplate = "http://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}&s=Ga", group = "Hybrid", attribution = "Google") %>%
-  addProviderTiles("Esri.WorldImagery", group = "ESRI") %>%
-  addCircleMarkers(~Longitude, ~Latitude, 
-                   radius=9, 
-                   fillColor = ~typepal4(Main_Type), 
-                   stroke=T, color = "#FFFFFF", opacity = 0.8, fillOpacity = 0.9, 
-                   popup = ~paste(paste0("<b><a href='",
-                                  Site_4$Google_Maps_URL,"' target='_blank'>",Site_4$Name,"</a></b>"),
-                                  Site_4$Full_Address,
-                                  paste0("<b>Place Type:</b> ",Site_4$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_4$Name),
-                   group = "Markers") %>%
-  addLegend("bottomright", pal = typepal4, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft")) %>%
-  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
-  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
-  addFullscreenControl()
-```
-
-
-### Business Details
-
-```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_4[,c(1,8,10:11,6)], 
-          rownames = F, 
-          escape = FALSE,
-          extensions = c("Buttons", "FixedHeader"), 
-          options = list(
-            searchHighlight = TRUE,
-            filter = "top",
-            dom = "Bfrtip",
-            buttons = list("colvis", "copy", "print", list(
-              extend = "collection",
-              buttons = c("csv", "excel"),
-              text = "Download"
-            )),
-            fixedHeader = TRUE
-          ))
-```
-
-Site 5 - US-79/Palm Valley Blvd {data-navmenu="Maps"}
-=====================================
-
-### Instructions
-
-Hover over a point to see the the name of the business. Click on a point to reveal a pop-up with its address and a link to the business's Google Maps webpage.
-
-
-### Map {.no-title }
-
-```{r, echo=FALSE,fig.height=8,fig.align="center"}
-leaflet(data = Site_5, width = "100%") %>%
-  addTiles(urlTemplate = "https://mts1.google.com/vt/lyrs=s&hl=en&src=app&x={x}&y={y}&z={z}&s=G", group = "Google", attribution = 'Google') %>%
-  addTiles(urlTemplate = "http://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}&s=Ga", group = "Hybrid", attribution = "Google") %>%
-  addProviderTiles("Esri.WorldImagery", group = "ESRI") %>%
-  addCircleMarkers(~Longitude, ~Latitude, 
-                   radius=9, 
-                   fillColor = ~typepal5(Main_Type), 
-                   stroke=T, color = "#FFFFFF", opacity = 0.8, fillOpacity = 0.9, 
-                   popup = ~paste(paste0("<b><a href='",
-                                  Site_5$Google_Maps_URL,"' target='_blank'>",Site_5$Name,"</a></b>"),
-                                  Site_5$Full_Address,
-                                  paste0("<b>Place Type:</b> ",Site_5$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_5$Name),
-                   group = "Markers") %>%
-  addLegend("bottomright", pal = typepal5, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft")) %>%
-  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
-  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
-  addFullscreenControl()
-```
-
-
-### Business Details
-
-```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_5[,c(1,8,10:11,6)], 
-          rownames = F, 
-          escape = FALSE,
-          extensions = c("Buttons", "FixedHeader"), 
-          options = list(
-            searchHighlight = TRUE,
-            filter = "top",
-            dom = "Bfrtip",
-            buttons = list("colvis", "copy", "print", list(
-              extend = "collection",
-              buttons = c("csv", "excel"),
-              text = "Download"
-            )),
-            fixedHeader = TRUE
-          ))
-```
-
-Site 6 - FM 620 {data-navmenu="Maps"}
-=====================================
-
-### Instructions
-
-Hover over a point to see the the name of the business. Click on a point to reveal a pop-up with its address and a link to the business's Google Maps webpage.
-
-
-### Map {.no-title }
-
-```{r, echo=FALSE,fig.height=8,fig.align="center"}
-leaflet(data = Site_6, width = "100%") %>%
-  addTiles(urlTemplate = "https://mts1.google.com/vt/lyrs=s&hl=en&src=app&x={x}&y={y}&z={z}&s=G", group = "Google", attribution = 'Google') %>%
-  addTiles(urlTemplate = "http://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}&s=Ga", group = "Hybrid", attribution = "Google") %>%
-  addProviderTiles("Esri.WorldImagery", group = "ESRI") %>%
-  addCircleMarkers(~Longitude, ~Latitude, 
-                   radius=9, 
-                   fillColor = ~typepal6(Main_Type), 
-                   stroke=T, color = "#FFFFFF", opacity = 0.8, fillOpacity = 0.9, 
-                   popup = ~paste(paste0("<b><a href='",
-                                  Site_6$Google_Maps_URL,"' target='_blank'>",Site_6$Name,"</a></b>"),
-                                  Site_6$Full_Address,
-                                  paste0("<b>Place Type:</b> ",Site_6$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_6$Name),
-                   group = "Markers") %>%
-  addLegend("bottomright", pal = typepal6, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft")) %>%
-  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
-  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
-  addFullscreenControl()
-```
-
-
-### Business Details
-
-```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_6[,c(1,8,10:11,6)], 
-          rownames = F, 
-          escape = FALSE,
-          extensions = c("Buttons", "FixedHeader"), 
-          options = list(
-            searchHighlight = TRUE,
-            filter = "top",
-            dom = "Bfrtip",
-            buttons = list("colvis", "copy", "print", list(
-              extend = "collection",
-              buttons = c("csv", "excel"),
-              text = "Download"
-            )),
-            fixedHeader = TRUE
-          ))
-```
-
-Site 7 - TX-29/University Ave {data-navmenu="Maps"}
-=====================================
-
-### Instructions
-
-Hover over a point to see the the name of the business. Click on a point to reveal a pop-up with its address and a link to the business's Google Maps webpage.
-
-
-### Map {.no-title }
-
-```{r, echo=FALSE,fig.height=8,fig.align="center"}
-leaflet(data = Site_7, width = "100%") %>%
-  addTiles(urlTemplate = "https://mts1.google.com/vt/lyrs=s&hl=en&src=app&x={x}&y={y}&z={z}&s=G", group = "Google", attribution = 'Google') %>%
-  addTiles(urlTemplate = "http://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}&s=Ga", group = "Hybrid", attribution = "Google") %>%
-  addProviderTiles("Esri.WorldImagery", group = "ESRI") %>%
-  addCircleMarkers(~Longitude, ~Latitude, 
-                   radius=9, 
-                   fillColor = ~typepal7(Main_Type), 
-                   stroke=T, color = "#FFFFFF", opacity = 0.8, fillOpacity = 0.9, 
-                   popup = ~paste(paste0("<b><a href='",
-                                  Site_7$Google_Maps_URL,"' target='_blank'>",Site_7$Name,"</a></b>"),
-                                  Site_7$Full_Address,
-                                  paste0("<b>Place Type:</b> ",Site_7$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_7$Name),
-                   group = "Markers") %>%
-  addLegend("bottomright", pal = typepal7, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft")) %>%
-  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
-  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
-  addFullscreenControl()
-```
-
-
-### Business Details
-
-```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_7[,c(1,8,10:11,6)], 
-          rownames = F, 
-          escape = FALSE,
-          extensions = c("Buttons", "FixedHeader"), 
-          options = list(
-            searchHighlight = TRUE,
-            filter = "top",
-            dom = "Bfrtip",
-            buttons = list("colvis", "copy", "print", list(
-              extend = "collection",
-              buttons = c("csv", "excel"),
-              text = "Download"
-            )),
-            fixedHeader = TRUE
-          ))
-```
-
-Site 8 - FM 1460/AW Grimes Blvd {data-navmenu="Maps"}
-=====================================
-
-### Instructions
-
-Hover over a point to see the the name of the business. Click on a point to reveal a pop-up with its address and a link to the business's Google Maps webpage.
-
-
-### Map {.no-title }
-
-```{r, echo=FALSE,fig.height=8,fig.align="center"}
-leaflet(data = Site_8, width = "100%") %>%
-  addTiles(urlTemplate = "https://mts1.google.com/vt/lyrs=s&hl=en&src=app&x={x}&y={y}&z={z}&s=G", group = "Google", attribution = 'Google') %>%
-  addTiles(urlTemplate = "http://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}&s=Ga", group = "Hybrid", attribution = "Google") %>%
-  addProviderTiles("Esri.WorldImagery", group = "ESRI") %>%
-  addCircleMarkers(~Longitude, ~Latitude, 
-                   radius=9, 
-                   fillColor = ~typepal8(Main_Type), 
-                   stroke=T, color = "#FFFFFF", opacity = 0.8, fillOpacity = 0.9, 
-                   popup = ~paste(paste0("<b><a href='",
-                                  Site_8$Google_Maps_URL,"' target='_blank'>",Site_8$Name,"</a></b>"),
-                                  Site_8$Full_Address,
-                                  paste0("<b>Place Type:</b> ",Site_8$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_8$Name),
-                   group = "Markers") %>%
-  addLegend("bottomright", pal = typepal8, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft"))%>%
-  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
-  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
-  addFullscreenControl()
-```
-
-
-### Business Details
-
-```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_8[,c(1,8,10:11,6)], 
-          rownames = F, 
-          escape = FALSE,
-          extensions = c("Buttons", "FixedHeader"), 
-          options = list(
-            searchHighlight = TRUE,
-            filter = "top",
-            dom = "Bfrtip",
-            buttons = list("colvis", "copy", "print", list(
-              extend = "collection",
-              buttons = c("csv", "excel"),
-              text = "Download"
-            )),
-            fixedHeader = TRUE
-          ))
-```
-
-Site 9 - FM 1431/Whitestone Blvd {data-navmenu="Maps"}
-=====================================
-
-### Instructions
-
-Hover over a point to see the the name of the business. Click on a point to reveal a pop-up with its address and a link to the business's Google Maps webpage.
-
-
-### Map {.no-title }
-
-```{r, echo=FALSE,fig.height=8,fig.align="center"}
-leaflet(data = Site_9, width = "100%") %>%
-  addTiles(urlTemplate = "https://mts1.google.com/vt/lyrs=s&hl=en&src=app&x={x}&y={y}&z={z}&s=G", group = "Google", attribution = 'Google') %>%
-  addTiles(urlTemplate = "http://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}&s=Ga", group = "Hybrid", attribution = "Google") %>%
-  addProviderTiles("Esri.WorldImagery", group = "ESRI") %>%
-  addCircleMarkers(~Longitude, ~Latitude, 
-                   radius=9, 
-                   fillColor = ~typepal9(Main_Type), 
-                   stroke=T, color = "#FFFFFF", opacity = 0.8, fillOpacity = 0.9, 
-                   popup = ~paste(paste0("<b><a href='",
-                                  Site_9$Google_Maps_URL,"' target='_blank'>",Site_9$Name,"</a></b>"),
-                                  Site_9$Full_Address,
-                                  paste0("<b>Place Type:</b> ",Site_9$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_9$Name),
-                   group = "Markers") %>%
-  addLegend("bottomright", pal = typepal9, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft")) %>%
-  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
-  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
-  addFullscreenControl()
-```
-
-
-### Business Details
-
-```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_9[,c(1,8,10:11,6)], 
-          rownames = F, 
-          escape = FALSE,
-          extensions = c("Buttons", "FixedHeader"), 
-          options = list(
-            searchHighlight = TRUE,
-            filter = "top",
-            dom = "Bfrtip",
-            buttons = list("colvis", "copy", "print", list(
-              extend = "collection",
-              buttons = c("csv", "excel"),
-              text = "Download"
-            )),
-            fixedHeader = TRUE
-          ))
-```
-
-Site 10 - FM 1431/Whitestone Blvd {data-navmenu="Maps"}
-=====================================
-
-### Instructions
-
-Hover over a point to see the the name of the business. Click on a point to reveal a pop-up with its address and a link to the business's Google Maps webpage.
-
-
-### Map {.no-title }
-
-```{r, echo=FALSE,fig.height=8,fig.align="center"}
-leaflet(data = Site_10, width = "100%") %>%
-  addTiles(urlTemplate = "https://mts1.google.com/vt/lyrs=s&hl=en&src=app&x={x}&y={y}&z={z}&s=G", group = "Google", attribution = 'Google') %>%
-  addTiles(urlTemplate = "http://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}&s=Ga", group = "Hybrid", attribution = "Google") %>%
-  addProviderTiles("Esri.WorldImagery", group = "ESRI") %>%
-  addCircleMarkers(~Longitude, ~Latitude, 
-                   radius=9, 
-                   fillColor = ~typepal10(Main_Type), 
-                   stroke=T, color = "#FFFFFF", opacity = 0.8, fillOpacity = 0.9, 
-                   popup = ~paste(paste0("<b><a href='",
-                                  Site_10$Google_Maps_URL,"' target='_blank'>",Site_10$Name,"</a></b>"),
-                                  Site_10$Full_Address,
-                                  paste0("<b>Place Type:</b> ",Site_10$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_10$Name),
-                   group = "Markers") %>%
-  addLegend("bottomright", pal = typepal10, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft")) %>%
-  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
-  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
-  addFullscreenControl()
-```
-
-
-### Business Details
-
-```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_10[,c(1,8,10:11,6)], 
-          rownames = F, 
-          escape = FALSE,
-          extensions = c("Buttons", "FixedHeader"), 
-          options = list(
-            searchHighlight = TRUE,
-            filter = "top",
-            dom = "Bfrtip",
-            buttons = list("colvis", "copy", "print", list(
-              extend = "collection",
-              buttons = c("csv", "excel"),
-              text = "Download"
-            )),
-            fixedHeader = TRUE
-          ))
-```
-
-Site 11 - FM 1431/Whitestone Blvd {data-navmenu="Maps"}
-=====================================
-
-### Instructions
-
-Hover over a point to see the the name of the business. Click on a point to reveal a pop-up with its address and a link to the business's Google Maps webpage.
-
-
-### Map {.no-title }
-
-```{r, echo=FALSE,fig.height=8,fig.align="center"}
-leaflet(data = Site_11, width = "100%") %>%
-  addTiles(urlTemplate = "https://mts1.google.com/vt/lyrs=s&hl=en&src=app&x={x}&y={y}&z={z}&s=G", group = "Google", attribution = 'Google') %>%
-  addTiles(urlTemplate = "http://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}&s=Ga", group = "Hybrid", attribution = "Google") %>%
-  addProviderTiles("Esri.WorldImagery", group = "ESRI") %>%
-  addCircleMarkers(~Longitude, ~Latitude, 
-                   radius=9, 
-                   fillColor = ~typepal11(Main_Type), 
-                   stroke=T, color = "#FFFFFF", opacity = 0.8, fillOpacity = 0.9, 
-                   popup = ~paste(paste0("<b><a href='",
-                                  Site_11$Google_Maps_URL,"' target='_blank'>",Site_11$Name,"</a></b>"),
-                                  Site_11$Full_Address,
-                                  paste0("<b>Place Type:</b> ",Site_11$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_11$Name),
-                   group = "Markers") %>%
-  addLegend("bottomright", pal = typepal11, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft")) %>%
-  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
-  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
-  addFullscreenControl()
-```
-
-
-### Business Details
-
-```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_11[,c(1,8,10:11,6)], 
-          rownames = F, 
-          escape = FALSE,
-          extensions = c("Buttons", "FixedHeader"), 
-          options = list(
-            searchHighlight = TRUE,
-            filter = "top",
-            dom = "Bfrtip",
-            buttons = list("colvis", "copy", "print", list(
-              extend = "collection",
-              buttons = c("csv", "excel"),
-              text = "Download"
-            )),
-            fixedHeader = TRUE
-          ))
-```
-
-
-Site 12 - FM 685 {data-navmenu="Maps"}
-=====================================
-
-### Instructions
-
-Hover over a point to see the the name of the business. Click on a point to reveal a pop-up with its address and a link to the business's Google Maps webpage.
-
-
-### Map {.no-title }
-
-```{r, echo=FALSE,fig.height=8,fig.align="center"}
-leaflet(data = Site_12, width = "100%") %>%
-  addTiles(urlTemplate = "https://mts1.google.com/vt/lyrs=s&hl=en&src=app&x={x}&y={y}&z={z}&s=G", group = "Google", attribution = 'Google') %>%
-  addTiles(urlTemplate = "http://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}&s=Ga", group = "Hybrid", attribution = "Google") %>%
-  addProviderTiles("Esri.WorldImagery", group = "ESRI") %>%
-  addCircleMarkers(~Longitude, ~Latitude, 
-                   radius=9, 
-                   fillColor = ~typepal12(Main_Type), 
-                   stroke=T, color = "#FFFFFF", opacity = 0.8, fillOpacity = 0.9, 
-                   popup = ~paste(paste0("<b><a href='",
-                                  Site_12$Google_Maps_URL,"' target='_blank'>",Site_12$Name,"</a></b>"),
-                                  Site_12$Full_Address,
-                                  paste0("<b>Place Type:</b> ",Site_12$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_12$Name),
-                   group = "Markers") %>%
-  addLegend("bottomright", pal = typepal12, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft")) %>%
-  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
-  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
-  addFullscreenControl()
-```
-
-
-### Business Details
-
-```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_12[,c(1,8,10:11,6)], 
-          rownames = F, 
-          escape = FALSE,
-          extensions = c("Buttons", "FixedHeader"), 
-          options = list(
-            searchHighlight = TRUE,
-            filter = "top",
-            dom = "Bfrtip",
-            buttons = list("colvis", "copy", "print", list(
-              extend = "collection",
-              buttons = c("csv", "excel"),
-              text = "Download"
-            )),
-            fixedHeader = TRUE
-          ))
-```
-
-Site 13 - FM 685 {data-navmenu="Maps"}
-=====================================
-
-### Instructions
-
-Hover over a point to see the the name of the business. Click on a point to reveal a pop-up with its address and a link to the business's Google Maps webpage.
-
-
-### Map {.no-title }
-
-```{r, echo=FALSE,fig.height=8,fig.align="center"}
-leaflet(data = Site_13, width = "100%") %>%
-  addTiles(urlTemplate = "https://mts1.google.com/vt/lyrs=s&hl=en&src=app&x={x}&y={y}&z={z}&s=G", group = "Google", attribution = 'Google') %>%
-  addTiles(urlTemplate = "http://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}&s=Ga", group = "Hybrid", attribution = "Google") %>%
-  addProviderTiles("Esri.WorldImagery", group = "ESRI") %>%
-  addCircleMarkers(~Longitude, ~Latitude, 
-                   radius=9, 
-                   fillColor = ~typepal13(Main_Type), 
-                   stroke=T, color = "#FFFFFF", opacity = 0.8, fillOpacity = 0.9, 
-                   popup = ~paste(paste0("<b><a href='",
-                                  Site_13$Google_Maps_URL,"' target='_blank'>",Site_13$Name,"</a></b>"),
-                                  Site_13$Full_Address,
-                                  paste0("<b>Place Type:</b> ",Site_13$Main_Type),sep="<br/>"), 
-                   label = ~as.character(Site_13$Name),
-                   group = "Markers") %>%
-  addLegend("bottomright", pal = typepal13, values = ~Main_Type, labels = "Business Type ", title = "Business Types", group = "Legend") %>%
-  addLayersControl(baseGroups = c("Google", "Hybrid", "ESRI"), overlayGroups = c("Legend"), options = layersControlOptions(collapsed = FALSE), position = c("topleft")) %>%
-  addScaleBar(position="bottomleft", options = scaleBarOptions(metric=F)) %>%
-  addSearchFeatures(targetGroups = "Markers", options = searchFeaturesOptions(zoom=19, autoCollapse = TRUE, hideMarkerOnCollapse = TRUE)) %>%
-  addFullscreenControl()
-```
-
-
-### Business Details
-
-```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_13[,c(1,8,10:11,6)], 
-          rownames = F, 
-          escape = FALSE,
-          extensions = c("Buttons", "FixedHeader"), 
-          options = list(
-            searchHighlight = TRUE,
-            filter = "top",
-            dom = "Bfrtip",
-            buttons = list("colvis", "copy", "print", list(
-              extend = "collection",
-              buttons = c("csv", "excel"),
-              text = "Download"
-            )),
-            fixedHeader = TRUE
-          ))
-```
+`r paste(knit(text = out), collapse = '\n')`
