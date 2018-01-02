@@ -10,11 +10,9 @@ output:
 
 ```{r setup, include=FALSE}
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(leaflet, viridis, DT, flexdashboard)
-devtools::install_github('rstudio/leaflet')
-devtools::install_github('bhaskarvk/leaflet.extras')
-library(leaflet.extras)
-wd <- "C:\\Users\\m-plunkett\\Documents\\Projects\\Raised Median Maps\\"
+pacman::p_load(viridis, flexdashboard)
+pacman::p_load_gh('rstudio/leaflet','bhaskarvk/leaflet.extras','rstudio/DT')
+wd <- "C:\\Users\\Michelle\\Documents\\Projects\\Raised Median Maps\\"
 setwd(wd)
 
 # Load Places Objects from previous script run (1:13 is number of sites total)
@@ -95,7 +93,21 @@ leaflet(data = Site_1, width = "100%") %>%
 ### Business Details
 
 ```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_1[,c(1,8,10:11,6)], rownames = F, escape = FALSE)
+datatable(Site_1[,c(1,8,10:11,6)], 
+          rownames = F, 
+          escape = FALSE,
+          extensions = c("Buttons", "FixedHeader"), 
+          options = list(
+            searchHighlight = TRUE,
+            filter = "top",
+            dom = "Bfrtip",
+            buttons = list("colvis", "copy", "print", list(
+              extend = "collection",
+              buttons = c("csv", "excel"),
+              text = "Download"
+            )),
+            fixedHeader = TRUE
+          ))
 ```
 
 Site 2 - FM 973 {data-navmenu="Maps"}
@@ -134,7 +146,21 @@ leaflet(data = Site_2, width = "100%") %>%
 ### Business Details
 
 ```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_2[,c(1,8,10:11,6)], rownames = F, escape = FALSE)
+datatable(Site_2[,c(1,8,10:11,6)], 
+          rownames = F, 
+          escape = FALSE,
+          extensions = c("Buttons", "FixedHeader"), 
+          options = list(
+            searchHighlight = TRUE,
+            filter = "top",
+            dom = "Bfrtip",
+            buttons = list("colvis", "copy", "print", list(
+              extend = "collection",
+              buttons = c("csv", "excel"),
+              text = "Download"
+            )),
+            fixedHeader = TRUE
+          ))
 ```
 
 Site 3 - Aquarena Springs Dr {data-navmenu="Maps"}
@@ -173,7 +199,21 @@ leaflet(data = Site_3, width = "100%") %>%
 ### Business Details
 
 ```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_3[,c(1,8,10:11,6)], rownames = F, escape = FALSE)
+datatable(Site_3[,c(1,8,10:11,6)], 
+          rownames = F, 
+          escape = FALSE,
+          extensions = c("Buttons", "FixedHeader"), 
+          options = list(
+            searchHighlight = TRUE,
+            filter = "top",
+            dom = "Bfrtip",
+            buttons = list("colvis", "copy", "print", list(
+              extend = "collection",
+              buttons = c("csv", "excel"),
+              text = "Download"
+            )),
+            fixedHeader = TRUE
+          ))
 ```
 
 Site 4 - TX-80 {data-navmenu="Maps"}
@@ -212,7 +252,21 @@ leaflet(data = Site_4, width = "100%") %>%
 ### Business Details
 
 ```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_4[,c(1,8,10:11,6)], rownames = F, escape = FALSE)
+datatable(Site_4[,c(1,8,10:11,6)], 
+          rownames = F, 
+          escape = FALSE,
+          extensions = c("Buttons", "FixedHeader"), 
+          options = list(
+            searchHighlight = TRUE,
+            filter = "top",
+            dom = "Bfrtip",
+            buttons = list("colvis", "copy", "print", list(
+              extend = "collection",
+              buttons = c("csv", "excel"),
+              text = "Download"
+            )),
+            fixedHeader = TRUE
+          ))
 ```
 
 Site 5 - US-79/Palm Valley Blvd {data-navmenu="Maps"}
@@ -251,7 +305,21 @@ leaflet(data = Site_5, width = "100%") %>%
 ### Business Details
 
 ```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_5[,c(1,8,10:11,6)], rownames = F, escape = FALSE)
+datatable(Site_5[,c(1,8,10:11,6)], 
+          rownames = F, 
+          escape = FALSE,
+          extensions = c("Buttons", "FixedHeader"), 
+          options = list(
+            searchHighlight = TRUE,
+            filter = "top",
+            dom = "Bfrtip",
+            buttons = list("colvis", "copy", "print", list(
+              extend = "collection",
+              buttons = c("csv", "excel"),
+              text = "Download"
+            )),
+            fixedHeader = TRUE
+          ))
 ```
 
 Site 6 - FM 620 {data-navmenu="Maps"}
@@ -290,7 +358,21 @@ leaflet(data = Site_6, width = "100%") %>%
 ### Business Details
 
 ```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_6[,c(1,8,10:11,6)], rownames = F, escape = FALSE)
+datatable(Site_6[,c(1,8,10:11,6)], 
+          rownames = F, 
+          escape = FALSE,
+          extensions = c("Buttons", "FixedHeader"), 
+          options = list(
+            searchHighlight = TRUE,
+            filter = "top",
+            dom = "Bfrtip",
+            buttons = list("colvis", "copy", "print", list(
+              extend = "collection",
+              buttons = c("csv", "excel"),
+              text = "Download"
+            )),
+            fixedHeader = TRUE
+          ))
 ```
 
 Site 7 - TX-29/University Ave {data-navmenu="Maps"}
@@ -329,7 +411,21 @@ leaflet(data = Site_7, width = "100%") %>%
 ### Business Details
 
 ```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_7[,c(1,8,10:11,6)], rownames = F, escape = FALSE)
+datatable(Site_7[,c(1,8,10:11,6)], 
+          rownames = F, 
+          escape = FALSE,
+          extensions = c("Buttons", "FixedHeader"), 
+          options = list(
+            searchHighlight = TRUE,
+            filter = "top",
+            dom = "Bfrtip",
+            buttons = list("colvis", "copy", "print", list(
+              extend = "collection",
+              buttons = c("csv", "excel"),
+              text = "Download"
+            )),
+            fixedHeader = TRUE
+          ))
 ```
 
 Site 8 - FM 1460/AW Grimes Blvd {data-navmenu="Maps"}
@@ -368,7 +464,21 @@ leaflet(data = Site_8, width = "100%") %>%
 ### Business Details
 
 ```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_8[,c(1,8,10:11,6)], rownames = F, escape = FALSE)
+datatable(Site_8[,c(1,8,10:11,6)], 
+          rownames = F, 
+          escape = FALSE,
+          extensions = c("Buttons", "FixedHeader"), 
+          options = list(
+            searchHighlight = TRUE,
+            filter = "top",
+            dom = "Bfrtip",
+            buttons = list("colvis", "copy", "print", list(
+              extend = "collection",
+              buttons = c("csv", "excel"),
+              text = "Download"
+            )),
+            fixedHeader = TRUE
+          ))
 ```
 
 Site 9 - FM 1431/Whitestone Blvd {data-navmenu="Maps"}
@@ -407,7 +517,21 @@ leaflet(data = Site_9, width = "100%") %>%
 ### Business Details
 
 ```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_9[,c(1,8,10:11,6)], rownames = F, escape = FALSE)
+datatable(Site_9[,c(1,8,10:11,6)], 
+          rownames = F, 
+          escape = FALSE,
+          extensions = c("Buttons", "FixedHeader"), 
+          options = list(
+            searchHighlight = TRUE,
+            filter = "top",
+            dom = "Bfrtip",
+            buttons = list("colvis", "copy", "print", list(
+              extend = "collection",
+              buttons = c("csv", "excel"),
+              text = "Download"
+            )),
+            fixedHeader = TRUE
+          ))
 ```
 
 Site 10 - FM 1431/Whitestone Blvd {data-navmenu="Maps"}
@@ -446,7 +570,21 @@ leaflet(data = Site_10, width = "100%") %>%
 ### Business Details
 
 ```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_10[,c(1,8,10:11,6)], rownames = F, escape = FALSE)
+datatable(Site_10[,c(1,8,10:11,6)], 
+          rownames = F, 
+          escape = FALSE,
+          extensions = c("Buttons", "FixedHeader"), 
+          options = list(
+            searchHighlight = TRUE,
+            filter = "top",
+            dom = "Bfrtip",
+            buttons = list("colvis", "copy", "print", list(
+              extend = "collection",
+              buttons = c("csv", "excel"),
+              text = "Download"
+            )),
+            fixedHeader = TRUE
+          ))
 ```
 
 Site 11 - FM 1431/Whitestone Blvd {data-navmenu="Maps"}
@@ -485,7 +623,21 @@ leaflet(data = Site_11, width = "100%") %>%
 ### Business Details
 
 ```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_11[,c(1,8,10:11,6)], rownames = F, escape = FALSE)
+datatable(Site_11[,c(1,8,10:11,6)], 
+          rownames = F, 
+          escape = FALSE,
+          extensions = c("Buttons", "FixedHeader"), 
+          options = list(
+            searchHighlight = TRUE,
+            filter = "top",
+            dom = "Bfrtip",
+            buttons = list("colvis", "copy", "print", list(
+              extend = "collection",
+              buttons = c("csv", "excel"),
+              text = "Download"
+            )),
+            fixedHeader = TRUE
+          ))
 ```
 
 
@@ -525,7 +677,21 @@ leaflet(data = Site_12, width = "100%") %>%
 ### Business Details
 
 ```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_12[,c(1,8,10:11,6)], rownames = F, escape = FALSE)
+datatable(Site_12[,c(1,8,10:11,6)], 
+          rownames = F, 
+          escape = FALSE,
+          extensions = c("Buttons", "FixedHeader"), 
+          options = list(
+            searchHighlight = TRUE,
+            filter = "top",
+            dom = "Bfrtip",
+            buttons = list("colvis", "copy", "print", list(
+              extend = "collection",
+              buttons = c("csv", "excel"),
+              text = "Download"
+            )),
+            fixedHeader = TRUE
+          ))
 ```
 
 Site 13 - FM 685 {data-navmenu="Maps"}
@@ -564,5 +730,19 @@ leaflet(data = Site_13, width = "100%") %>%
 ### Business Details
 
 ```{r cols.print=7, rows.print=54, echo=FALSE}
-datatable(Site_13[,c(1,8,10:11,6)], rownames = F, escape = FALSE)
+datatable(Site_13[,c(1,8,10:11,6)], 
+          rownames = F, 
+          escape = FALSE,
+          extensions = c("Buttons", "FixedHeader"), 
+          options = list(
+            searchHighlight = TRUE,
+            filter = "top",
+            dom = "Bfrtip",
+            buttons = list("colvis", "copy", "print", list(
+              extend = "collection",
+              buttons = c("csv", "excel"),
+              text = "Download"
+            )),
+            fixedHeader = TRUE
+          ))
 ```
