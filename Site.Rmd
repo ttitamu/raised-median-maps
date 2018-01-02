@@ -6,11 +6,13 @@ output:
     vertical_layout: scroll
     theme: yeti
     source_code: embed
+    favicon: favicon.png
 ---
 
 ```{r setup, include=FALSE}
 
-# This website was created by Michelle Plunkett in December 2017. 
+# ABOUT THIS WEBSITE & SCRIPT: 
+# This is a data processing script to create an RMarkdown website written by Michelle Plunkett in December 2017. 
 # Michelle is a Graduate Student Worker at the Texas A&M Transportation Institute.
 # She is a Master of Public Affairs candidate (Class of 2018) at UT Austin's LBJ School of Public Affairs.
 # Contact Information: mplunkett@utexas.edu
@@ -140,6 +142,8 @@ This is a website to hold the maps created from Google Places API retrievals. Yo
 - [Site 11 - FM 1431/Whitestone Blvd]
 - [Site 12 - FM 685]
 - [Site 13 - FM 685]
+
+Further information about the data collection methodology can be viewed in the <a href="https://github.com/ttitamu/raised-median-maps/blob/master/GooglePlaces-2017-12-22.R" target="_blank">R script here</a>.
 
 
 ```{r, echo = FALSE, eval = TRUE}
